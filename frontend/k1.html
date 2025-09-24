@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Keerthana Proposal 💖</title>
+
+  <!-- lottie-web (keeps your existing approach) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.4/lottie.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Arial", sans-serif;
+      text-align: center;
+      background-color: #fff0f5;
+      overflow-x: hidden;
+    }
+    h1 { color: #e75480; }
+    h3 { color: #ffb6c1; }
+    .btn {
+      background-color: #e75480;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin: 10px;
+      transition: 0.3s;
+    }
+    .btn:hover { background-color: #d1476f; }
+    .page { display: none; }
+    .active { display: block; }
+
+    /* Background Lottie container */
+    .lottie-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.25; /* make dreamy */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .main-content {
+      position: relative;
+      z-index: 1;
+      padding: 50px 20px;
+    }
+
+    /* Cupid container (foreground) */
+    #cupid {
+      width: 320px;
+      height: 320px;
+      margin: 0 auto 10px;
+      z-index: 1;
+    }
+
+    /* Balloons (Yes) */
+    .balloon {
+      width: 40px; height: 60px;
+      background: pink;
+      border-radius: 50% 50% 50% 50%;
+      position: absolute;
+      bottom: -100px;
+      animation: floatUp 6s linear infinite;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(-120vh); opacity: 0; }
+    }
+
+    /* Snow (No) */
+    .snowflake {
+      position: absolute;
+      color: white;
+      font-size: 1em;
+      top: -10px;
+      animation: fall 10s linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(100vh); }
+    }
+
+    /* SVG fallback styles (heart beat + arrow) */
+    .svg-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .heart {
+      transform-origin: center;
+      animation: beat 1s infinite;
+    }
+    @keyframes beat {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.12); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    .arrow {
+      animation: fly 1.2s ease-in-out;
+    }
+    @keyframes fly {
+      0% { transform: translateX(-140px) translateY(-40px) rotate(-20deg); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateX(140px) translateY(-120px) rotate(-20deg); opacity: 0; }
+    }
+
+    /* minor responsive tweak */
+    @media (max-width:480px){
+      #cupid { width: 220px; height: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Cupid (Lottie) -->
+  <div class="lottie-bg" id="lottie-bg"></div>
+
+  <!-- Main Page -->
+  <div id="main" class="page active">
+    <div class="main-content">
+      <h1>Idiot</h1>
+      <h3 style="color:#000000;">Welcome to something special, Keerthana!</h3>
+      <button class="btn" onclick="goToPage('proposal')">He needs to tell something 💌</button>
+    </div>
+  </div>
+
+  <!-- Proposal Page -->
+  <div id="proposal" class="page">
+    <div class="main-content">
+      <h1>I love you, Keerthana!</h1>
+
+      <!-- Foreground Cupid container -->
+      <div id="cupid" aria-hidden="true"></div>
+
+      <div>
+        <button class="btn" onclick="goToPage('yes')">Yes 💖</button>
+        <button class="btn" onclick="goToPage('no')">No 💔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yes Page -->
+  <div id="yes" class="page">
+    <div class="main-content">
+      <h1>Yay! You said Yes! 💍</h1>
+      <p style="font-size:1.5em;">Our love story begins... 💑</p>
+      <button class="btn" onclick="goToPage('main')">🔙 Back to Start</button>
+    </div>
+  </div>
+
+  <!-- No Page -->
+  <div id="no" class="page">
+    <div class="main-content">
+      <h1 style="color:#808080;">Oh no... 💔</h1>
+      <p style="font-size:1.5em;">But I'll always cherish you, Keerthana.</p>
+      <button class="btn" onclick="goToPage('main')">🔙 Back to Start</button>
+    </div>
+  </div>
+
+  <script>
+    /********************************************************************
+     *  Lottie loading with robust fallback
+     *
+     *  - Tries to fetch the JSON first (so we can detect 404/CORS).
+     *  - If OK, uses lottie.loadAnimation with animationData (no silent failures).
+     *  - If fetch/load fails, logs the error and injects a guaranteed SVG fallback.
+     *
+     *  Replace cupidLottieUrl with your preferred Lottie JSON URL.
+     ********************************************************************/
+
+    // Put your Lottie JSON URLs here (background and foreground)
+    const cupidLottieUrl = 'https://assets10.lottiefiles.com/packages/lf20_pwg9hQ.json'; // replace if you have another
+    const bgLottieUrl = cupidLottieUrl; // same for background (or set a different one)
+
+    const cupidContainer = document.getElementById('cupid');
+    const bgContainer = document.getElementById('lottie-bg');
+
+    // Utility: create the SVG fallback (heart + flying arrow)
+    function injectSvgFallback(targetEl) {
+      // don't duplicate
+      if (!targetEl || targetEl.dataset.fallback) return;
+      targetEl.dataset.fallback = 'true';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'svg-fallback';
+      wrapper.innerHTML = `
+        <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+          <g transform="translate(100 100)">
+            <!-- arrow -->
+            <g class="arrow" style="transform-origin:0 0;">
+              <line x1="-140" y1="-40" x2="140" y2="-120" stroke="#b33" stroke-width="4" stroke-linecap="round" />
+              <polygon points="140,-120 132,-112 148,-118" fill="#b33" />
+            </g>
+
+            <!-- heart path -->
+            <g class="heart" transform="translate(0,10)">
+              <path d="M0 -20
+                       C 0 -50 40 -50 40 -20
+                       C 40 10 0 40 0 60
+                       C 0 40 -40 10 -40 -20
+                       C -40 -50 0 -50 0 -20 Z"
+                    fill="#ff6b9a" stroke="#e23" stroke-width="2" transform="scale(0.35) translate(0,-120)"/>
+            </g>
+          </g>
+        </svg>
+      `;
+      // clear existing children & append fallback
+      targetEl.innerHTML = '';
+      targetEl.appendChild(wrapper);
+
+      // re-trigger arrow animation periodically (so you see multiple arrow flights)
+      const arrow = wrapper.querySelector('.arrow');
+      setInterval(() => {
+        arrow.style.animation = 'none';
+        // force reflow
+        void arrow.offsetWidth;
+        arrow.style.animation = null;
+      }, 1600);
+    }
+
+    // Try to load a Lottie JSON via fetch -> if ok, load into lottie-web with animationData.
+    async function loadLottieInto(containerEl, jsonUrl, subtleOpacity) {
+      if (!containerEl) return;
+      try {
+        // quick fetch to detect CORS/404 early and get JSON
+        const res = await fetch(jsonUrl, { mode: 'cors' });
+        if (!res.ok) throw new Error('Network response not OK: ' + res.status);
+        const json = await res.json();
+
+        // clear any fallback content
+        containerEl.innerHTML = '';
+
+        // load animation with the retrieved JSON object
+        lottie.loadAnimation({
+          container: containerEl,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          animationData: json
+        });
+
+        // optional subtle opacity control for background
+        if (subtleOpacity && containerEl.style) {
+          containerEl.style.opacity = subtleOpacity;
+        }
+
+        console.info('Lottie loaded OK from:', jsonUrl);
+      } catch (err) {
+        console.warn('Lottie failed to load from', jsonUrl, err);
+        // injection fallback so something Cupid-ish is always visible
+        injectSvgFallback(containerEl);
+      }
+    }
+
+    // Kick off loading for both background and foreground
+    loadLottieInto(cupidContainer, cupidLottieUrl, 1);
+    loadLottieInto(bgContainer, bgLottieUrl, 0.25);
+
+    // Navigation and effects (unchanged behavior)
+  async  function goToPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+
+      // Special effects
+      if (id === 'yes') {
+        launchBalloons();
+          //Sending the status to the server
+  const response = await fetch('http://localhost:3000/status', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ status: 'Accepted' })
+  });
+  const data = await response.json();
+  
+  console.log(data);
+      } else if (id === 'no') {
+          //Sending the status to the server
+  const response = await fetch('http://localhost:3000/status', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ status: 'Rejected' })
+  });
+  const data = await response.json();
+  console.log(data);
+        startSnow();
+      }
+      else{
+        console.log("No buttton has been selected.")
+      }
+    }
+
+    // Balloons
+    function launchBalloons() {
+      for (let i = 0; i < 20; i++) {
+        let b = document.createElement("div");
+        b.className = "balloon";
+        b.style.left = Math.random() * 100 + "vw";
+        b.style.background = ["#ffb6c1", "#e75480", "#ffc0cb"][Math.floor(Math.random()*3)];
+        document.body.appendChild(b);
+        setTimeout(()=>b.remove(), 6000);
+      }
+    }
+
+    // Snow
+    function startSnow() {
+      for (let i = 0; i < 30; i++) {
+        let s = document.createElement("div");
+        s.className = "snowflake";
+        s.innerHTML = "❄";
+        s.style.left = Math.random() * 100 + "vw";
+        s.style.animationDuration = (5 + Math.random()*5) + "s";
+        document.body.appendChild(s);
+        setTimeout(()=>s.remove(), 10000);
+      }
+    }
+  </script>
+</body>
+</html>
